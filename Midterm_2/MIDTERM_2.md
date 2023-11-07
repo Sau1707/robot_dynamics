@@ -43,13 +43,26 @@ for k=1:length(q)
     dJp = dAdt(I_J_pos{k}, q, dq);
     dJr = dAdt(I_J_rot{k}, q, dq);
 
-    omega i = I_J_rot{k} * dq;
+    omega_i = I_J_rot{k} * dq;
     I_sk = simplify(R_Ik{k} * k_I_s{k} * R_Ik{k}');
 
     b = b + I_J_pos{k}' * m{k} * dJp * dq + ...
             I_J_rot{k}' * I_sk * dJr * dq + ...
             I_J_rot{k}' * cross(omega_i , I_sk * omega_i);
 end
+```
+
+### Energy
+
+```matlab
+E_kin = 0.5 * dphi' * M * dphi;
+E_pot = sym(0);
+for k=1:length(phi)
+    E_pot = E_pot − m{k} * I_g_acc' * [eye(3) zeros(3,1)] ...
+    * T Ik{k} * [k r ks {k};1];
+end
+
+hamiltonian = E_kin + E_pot;
 ```
 
 ### $\ddot{q}$ 

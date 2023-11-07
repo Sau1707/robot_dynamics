@@ -28,8 +28,11 @@ eom.hamiltonian = sym(zeros(1,1));
 
 %% Compute mass matrix
 fprintf('Computing mass matrix M... ');
-% TODO: Implement M = ...;
 M = sym(zeros(6,6));
+for k = 1:length(q)
+    M = M + m{k} * I_Jp_s{k}' * I_Jp_s{k} ...
+    + I_Jr{k}' *R_Ik{k} *k_I_s{k} *R_Ik{k}' *I_Jr{k};
+end
 fprintf('done!\n');
 
 
@@ -37,6 +40,9 @@ fprintf('done!\n');
 fprintf('Computing gravity vector g... ');
 % TODO: Implement g = ...;
 g = sym(zeros(6,1));
+for k = 1:length(q)
+    g = g - I_Jp_s{k}' * m{k} * I_g_acc;
+end
 fprintf('done!\n');
 
 
@@ -44,6 +50,16 @@ fprintf('done!\n');
 fprintf('Computing coriolis and centrifugal vector b and simplifying... ');
 % TODO: Implement b = ...;
 b = sym(zeros(6,1));
+for k=1:length(q)
+    dJp = dAdt(I_Jp_s{k}, q, dq);
+    dJr = dAdt(I_Jr{k}, q, dq);
+    omega_i = I_Jr{k} * dq;
+    I_sk = simplify(R_Ik{k} * k_I_s{k} * R_Ik{k}');
+
+    b = b + I_Jp_s{k}' * m{k} * dJp * dq + ...
+            I_Jr{k}' * I_sk * dJr * dq + ...
+            I_Jr{k}' * cross(omega_i , I_sk * omega_i);
+end
 fprintf('done!\n');
 
 
